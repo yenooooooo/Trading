@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 // WebSocket은 백엔드 WS 엔드포인트 구현 후 활성화
 // 현재는 REST 폴링으로 대체 (useTrading.ts)
 const WS_BASE_URL = "";
+const WS_ENABLED = !!WS_BASE_URL;
 
 // ── 타입 ─────────────────────────────────
 
@@ -139,7 +140,7 @@ export function useTickerStream(symbols: string[] = ["BTCUSDT"]) {
 
   const streamParam = symbols.join(",");
   const { connected } = useWebSocket({
-    url: `${WS_BASE_URL}/ticker?symbols=${streamParam}`,
+    url: WS_ENABLED ? `${WS_BASE_URL}/ticker?symbols=${streamParam}` : "",
     onMessage: handleMessage,
   });
 
@@ -159,7 +160,7 @@ export function usePositionStream() {
   }, []);
 
   const { connected } = useWebSocket({
-    url: `${WS_BASE_URL}/positions`,
+    url: WS_ENABLED ? `${WS_BASE_URL}/positions` : "",
     onMessage: handleMessage,
   });
 
@@ -179,7 +180,7 @@ export function useTradeStream() {
   }, []);
 
   const { connected } = useWebSocket({
-    url: `${WS_BASE_URL}/trades`,
+    url: WS_ENABLED ? `${WS_BASE_URL}/trades` : "",
     onMessage: handleMessage,
   });
 

@@ -145,7 +145,32 @@ export default function TradingPage() {
     };
   }, []);
 
-  // Fetch and update chart data
+  const isInitialLoad = useRef(true);
+
+  // Parse kline data to chart format
+  const parseKlines = useCallback((klines: KlineData[]) => {
+    const candleData: CandlestickData[] = klines.map((k) => ({
+      time: (k.timestamp / 1000) as Time,
+      open: parseFloat(k.open),
+      high: parseFloat(k.high),
+      low: parseFloat(k.low),
+      close: parseFloat(k.close),
+    }));
+
+    const volumeData: HistogramData[] = klines.map((k) => {
+      const open = parseFloat(k.open);
+      const close = parseFloat(k.close);
+      return {
+        time: (k.timestamp / 1000) as Time,
+        value: parseFloat(k.volume),
+        color: close >= open ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
+      };
+    });
+
+    return { candleData, volumeData };
+  }, []);
+
+  // Full chart load (initial + symbol/interval change)
   const fetchKlines = useCallback(async () => {
     if (!chartReady) return;
 
@@ -156,33 +181,47 @@ export default function TradingPage() {
       const res = await api.get<KlineData[]>(
         `/api/market/klines/${symbol}?interval=${interval}&limit=200`
       );
-      const klines = res.data ?? [];
-
-      const candleData: CandlestickData[] = klines.map((k) => ({
-        time: (k.timestamp / 1000) as Time,
-        open: parseFloat(k.open),
-        high: parseFloat(k.high),
-        low: parseFloat(k.low),
-        close: parseFloat(k.close),
-      }));
-
-      const volumeData: HistogramData[] = klines.map((k) => {
-        const open = parseFloat(k.open);
-        const close = parseFloat(k.close);
-        return {
-          time: (k.timestamp / 1000) as Time,
-          value: parseFloat(k.volume),
-          color: close >= open ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
-        };
-      });
+      const { candleData, volumeData } = parseKlines(res.data ?? []);
 
       candleSeriesRef.current?.setData(candleData);
       volumeSeriesRef.current?.setData(volumeData);
       chartRef.current?.timeScale().fitContent();
+      isInitialLoad.current = false;
     } catch (e) {
       setError(e instanceof Error ? e.message : "차트 데이터 로드 실패");
     } finally {
       setLoading(false);
+    }
+  }, [symbol, interval, chartReady, parseKlines]);
+
+  // Realtime update: fetch latest candles and update in place (no fitContent)
+  const updateLatestCandles = useCallback(async () => {
+    if (!chartReady || isInitialLoad.current) return;
+
+    try {
+      const res = await api.get<KlineData[]>(
+        `/api/market/klines/${symbol}?interval=${interval}&limit=3`
+      );
+      const klines = res.data ?? [];
+      for (const k of klines) {
+        const open = parseFloat(k.open);
+        const close = parseFloat(k.close);
+
+        candleSeriesRef.current?.update({
+          time: (k.timestamp / 1000) as Time,
+          open,
+          high: parseFloat(k.high),
+          low: parseFloat(k.low),
+          close,
+        });
+        volumeSeriesRef.current?.update({
+          time: (k.timestamp / 1000) as Time,
+          value: parseFloat(k.volume),
+          color: close >= open ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
+        });
+      }
+    } catch {
+      // silent — don't break the chart on refresh errors
     }
   }, [symbol, interval, chartReady]);
 
@@ -198,15 +237,20 @@ export default function TradingPage() {
 
   // Load data when symbol/interval changes
   useEffect(() => {
+    isInitialLoad.current = true;
     fetchKlines();
     fetchTicker();
   }, [fetchKlines, fetchTicker]);
 
-  // Auto refresh ticker every 10s
+  // Auto refresh: ticker every 5s, candles every 10s
   useEffect(() => {
-    const id = setInterval(fetchTicker, 10000);
-    return () => clearInterval(id);
-  }, [fetchTicker]);
+    const tickerId = setInterval(fetchTicker, 5000);
+    const candleId = setInterval(updateLatestCandles, 10000);
+    return () => {
+      clearInterval(tickerId);
+      clearInterval(candleId);
+    };
+  }, [fetchTicker, updateLatestCandles]);
 
   const price = ticker ? parseFloat(ticker.price) : 0;
   const change24h = ticker?.change_24h ?? 0;

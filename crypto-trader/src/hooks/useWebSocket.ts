@@ -9,8 +9,9 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-const WS_BASE_URL =
-  process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
+// WebSocket은 백엔드 WS 엔드포인트 구현 후 활성화
+// 현재는 REST 폴링으로 대체 (useTrading.ts)
+const WS_BASE_URL = "";
 
 // ── 타입 ─────────────────────────────────
 
@@ -72,6 +73,7 @@ export function useWebSocket({
   const [connected, setConnected] = useState(false);
 
   const connect = useCallback(() => {
+    if (!url) return; // URL 없으면 연결 안 함
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     const ws = new WebSocket(url);

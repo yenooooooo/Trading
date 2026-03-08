@@ -8,8 +8,8 @@
 import type { ApiResponse } from "@/types/api";
 
 // --- API 기본 URL ---
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+// Vercel rewrites를 통해 /api/* → EC2로 프록시되므로 빈 문자열 사용
+const API_BASE_URL = "";
 
 // --- 토큰 관리 ---
 let accessToken: string | null = null;

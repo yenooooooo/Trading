@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.api import auth, exchanges, strategies, positions, trades, risk, market, alerts, backtest, trading
+from app.api import auth, exchanges, strategies, positions, trades, risk, market, alerts, backtest, trading, settings
 
 # --- FastAPI 앱 생성 ---
 settings = get_settings()
@@ -51,3 +51,4 @@ app.include_router(risk.router, prefix="/api/risk", tags=["리스크"])
 app.include_router(market.router, prefix="/api/market", tags=["시장데이터"])
 app.include_router(alerts.router, prefix="/api/alerts", tags=["알림"])
 app.include_router(trading.router, prefix="/api/trading", tags=["실시간매매"])
+app.include_router(settings.router, prefix="/api/settings", tags=["설정"])

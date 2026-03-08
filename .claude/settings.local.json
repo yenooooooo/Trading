@@ -26,7 +26,12 @@
       "Bash(aws:*)",
       "Bash(where aws:*)",
       "Bash(ssh:*)",
-      "Bash(scp:*)"
+      "Bash(scp:*)",
+      "Bash(do ls:*)",
+      "Bash(for dir in trading positions history backtest risk settings)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Read(//c/Users/ailee/github/trading/crypto-trader/src/app/dashboard/**)",
+      "Bash(done)"
     ]
   }
 }

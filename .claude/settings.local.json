@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(rm:*)",
+      "Bash(npx shadcn@latest:*)",
+      "Bash(do touch:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(xargs grep:*)",
+      "Bash(nslookup:*)",
+      "Bash(taskkill:*)",
+      "Bash(grep:*)",
+      "Bash(w32tm:*)",
+      "Bash(mv:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)",
+      "Bash(ls:*)",
+      "Bash(npx next:*)",
+      "Bash(node:*)",
+      "Bash(PYTHONIOENCODING=utf-8 timeout 10 python:*)",
+      "Bash(set PYTHONIOENCODING=utf-8:*)",
+      "Bash(npx tsc:*)",
+      "Bash(docker build:*)",
+      "Bash(aws:*)",
+      "Bash(where aws:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)"
+    ]
+  }
+}

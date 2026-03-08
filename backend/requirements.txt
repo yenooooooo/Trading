@@ -1,0 +1,40 @@
+# --- 웹 프레임워크 ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# --- 거래소 연동 ---
+ccxt>=4.4.50
+
+# --- 데이터 분석 (퀀트) ---
+pandas==2.2.3
+numpy==2.2.1
+scipy==1.15.0
+
+# --- 데이터베이스 ---
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.1
+asyncpg==0.30.0
+
+# --- Redis ---
+redis[hiredis]==5.2.1
+
+# --- 인증 & 보안 ---
+pyjwt==2.10.1
+cryptography==44.0.0
+passlib[bcrypt]==1.7.4
+
+# --- 설정 & 유틸 ---
+pydantic[email]==2.10.4
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# --- 작업 큐 ---
+celery==5.4.0
+
+# --- 테스트 ---
+pytest==8.3.4
+pytest-asyncio==0.25.0
+
+# --- 로깅 ---
+structlog==24.4.0

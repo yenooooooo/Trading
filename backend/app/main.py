@@ -8,10 +8,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.api import auth, exchanges, strategies, positions, trades, risk, market, alerts, backtest, trading, settings
+from app.api import auth, exchanges, strategies, positions, trades, risk, market, alerts, backtest, trading
+from app.api import settings as settings_api
 
 # --- FastAPI 앱 생성 ---
-settings = get_settings()
+app_settings = get_settings()
 
 app = FastAPI(
     title="Crypto Auto-Trader API",
@@ -22,7 +23,7 @@ app = FastAPI(
 # --- CORS 설정 (프론트엔드 연동) ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=app_settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,4 +52,4 @@ app.include_router(risk.router, prefix="/api/risk", tags=["리스크"])
 app.include_router(market.router, prefix="/api/market", tags=["시장데이터"])
 app.include_router(alerts.router, prefix="/api/alerts", tags=["알림"])
 app.include_router(trading.router, prefix="/api/trading", tags=["실시간매매"])
-app.include_router(settings.router, prefix="/api/settings", tags=["설정"])
+app.include_router(settings_api.router, prefix="/api/settings", tags=["설정"])

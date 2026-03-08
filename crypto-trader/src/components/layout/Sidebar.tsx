@@ -16,6 +16,7 @@ import {
   Wallet,
   History,
   ShieldAlert,
+  Bell,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ const menuItems = [
   { href: "/dashboard/positions", icon: Wallet, label: "포지션" },
   { href: "/dashboard/history", icon: History, label: "거래 내역" },
   { href: "/dashboard/risk", icon: ShieldAlert, label: "리스크" },
+  { href: "/dashboard/alerts", icon: Bell, label: "알림" },
   { href: "/dashboard/settings", icon: Settings, label: "설정" },
 ];
 

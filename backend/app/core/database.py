@@ -17,25 +17,28 @@ from app.config import get_settings
 # --- DB 엔진 생성 ---
 settings = get_settings()
 
-# Supabase PostgreSQL URL을 asyncpg용으로 변환
-# postgresql://... → postgresql+asyncpg://...
-async_database_url = settings.database_url.replace(
-    "postgresql://", "postgresql+asyncpg://"
-)
+# DB URL이 없으면 엔진/세션을 None으로 (DB 없이도 서버 실행 가능)
+engine = None
+async_session = None
 
-engine = create_async_engine(
-    async_database_url,
-    echo=settings.debug,  # 개발 시 SQL 로그 출력
-    pool_size=5,
-    max_overflow=10,
-)
+if settings.database_url:
+    # Supabase PostgreSQL URL을 asyncpg용으로 변환
+    async_database_url = settings.database_url.replace(
+        "postgresql://", "postgresql+asyncpg://"
+    )
 
-# --- 세션 팩토리 ---
-async_session = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
+    engine = create_async_engine(
+        async_database_url,
+        echo=settings.debug,
+        pool_size=5,
+        max_overflow=10,
+    )
+
+    async_session = async_sessionmaker(
+        engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
 
 
 # --- ORM Base 클래스 ---
@@ -47,6 +50,8 @@ class Base(DeclarativeBase):
 # --- 세션 생성 함수 (의존성 주입용) ---
 async def get_db() -> AsyncSession:
     """요청마다 DB 세션을 생성하고 자동 정리"""
+    if async_session is None:
+        raise RuntimeError("DATABASE_URL이 설정되지 않았습니다")
     async with async_session() as session:
         try:
             yield session

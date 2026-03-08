@@ -22,6 +22,24 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+// --- snake_case → camelCase 변환 ---
+function toCamelCase(str: string): string {
+  return str.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+function convertKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(convertKeys);
+  if (obj !== null && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [
+        toCamelCase(k),
+        convertKeys(v),
+      ])
+    );
+  }
+  return obj;
+}
+
 // --- 공통 fetch 래퍼 ---
 async function fetchApi<T>(
   endpoint: string,
@@ -46,7 +64,8 @@ async function fetchApi<T>(
 
   try {
     const response = await fetch(url, config);
-    const data: ApiResponse<T> = await response.json();
+    const raw = await response.json();
+    const data = convertKeys(raw) as ApiResponse<T>;
 
     if (!response.ok) {
       throw new Error(data.error || `API 오류: ${response.status}`);
